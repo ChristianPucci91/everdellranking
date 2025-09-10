@@ -57,7 +57,7 @@
 <template>
   <v-card>
     <v-layout>
-      <v-app-bar class="title" style="background-image: url('/src/assets/images/everdell_menu.png'); background-size: cover; background-position: center;">
+      <v-app-bar class="title" style="background-image: url('/images/everdell_menu.png'); background-size: cover; background-position: center;">
         <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
 
         <v-toolbar-title>Everdell GoodFellas</v-toolbar-title>
