@@ -16,4 +16,8 @@ const router = createRouter({
   routes
 })
 
+router.afterEach((to) => {
+  document.title = to.meta.title || 'Everdell Ranking'
+})
+
 export default router
