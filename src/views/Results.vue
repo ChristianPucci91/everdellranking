@@ -4,18 +4,7 @@ import { ref, onMounted } from 'vue'
 // Firebase
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-
-// Configurazione Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBCZUTNDQ8la4dSvR4N56zQvKWxTDwezsI",
-  authDomain: "everdell-21f0f.firebaseapp.com",
-  databaseURL: "https://everdell-21f0f-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "everdell-21f0f",
-  storageBucket: "everdell-21f0f.firebasestorage.app",
-  messagingSenderId: "28450169793",
-  appId: "1:28450169793:web:c7460c13b4bcdd68670540",
-  measurementId: "G-7GLH1S1MX6"
-};
+import { firebaseConfig } from '@/config/firebase'
 
 // Inizializza Firebase
 const app = initializeApp(firebaseConfig);
@@ -72,10 +61,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container vh-100">
+  <div class="container min-vh-100">
     <div class="row h-100 mb-4">
       <div class="col-12 text-center">
-        <h1 class="my-4">Ultimi 5 match Everdell</h1>
+        <h1 class="my-4">Tutti i match Everdell</h1>
 
         <div v-if="results.length">
           <div v-for="result in results" :key="result.id" class="mb-4">

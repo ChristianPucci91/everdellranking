@@ -1,6 +1,8 @@
 <script setup>
 
   import { ref, watch } from 'vue'
+  import { useRouter } from 'vue-router'
+  const router = useRouter()
 
   const items = [
     {
@@ -37,6 +39,19 @@
       behavior: 'smooth'  // per uno scroll animato
     });
   }
+
+  const handleNavigation = (item) => {
+    if (item.title === 'Admin') {
+      const password = prompt('Inserisci la password per accedere ad Admin:')
+      if (!password || password !== import.meta.env.VITE_ADMIN_PASSWORD) {
+        alert('Password errata! Accesso negato.')
+        return
+      }
+    }
+
+    router.push(item.route)
+  }
+
 </script>
 
 <template>
@@ -62,13 +77,13 @@
         temporary
       >
       <v-list>
-        <v-list-item
-          v-for="item in items"
-          :key="item.title"
-          :to="item.route"
-          ripple
-          :active-class="'v-list-item--active'"
-        >
+          <v-list-item
+            v-for="item in items"
+            :key="item.title"
+            ripple
+            :active-class="'v-list-item--active'"
+            @click="handleNavigation(item)"
+          >
           <v-list-item-avatar v-if="item.avatar">
             <v-img :src="item.avatar"></v-img>
           </v-list-item-avatar>

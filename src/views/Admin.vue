@@ -1,91 +1,116 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-
-// Firebase
+import { ref, computed } from 'vue'
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { firebaseConfig } from '@/config/firebase'
 
-// Configurazione Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBCZUTNDQ8la4dSvR4N56zQvKWxTDwezsI",
-  authDomain: "everdell-21f0f.firebaseapp.com",
-  databaseURL: "https://everdell-21f0f-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "everdell-21f0f",
-  storageBucket: "everdell-21f0f.firebasestorage.app",
-  messagingSenderId: "28450169793",
-  appId: "1:28450169793:web:c7460c13b4bcdd68670540",
-  measurementId: "G-7GLH1S1MX6"
-};
-
-// Inizializza Firebase
+// Inizializzo Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Variabile reattiva per i rankings
-const rankings = ref([])
+// Lista dei giocatori disponibili
+const playersList = ['Christian', 'Fabio', 'Luca', 'Valerio','Mauro','Michele']
 
-// Funzione per leggere i rankings
-const loadRankings = async () => {
-  const querySnapshot = await getDocs(collection(db, "rankings"))
-  const data = []
-
-  querySnapshot.forEach((doc) => {
-    const ranking = doc.data()
-    console.log(ranking)
-    // il campo "text" è un JSON salvato come stringa → lo parsifico
-    let scores = {}
-    try {
-      scores = JSON.parse(ranking.text).scores
-    } catch (e) {
-      console.error("Errore parsing JSON:", e)
-    }
-    data.push({
-      id: doc.id,
-      round: JSON.parse(ranking.text).round,
-      scores,
-      createdAt: ranking.createdAt?.toDate ? ranking.createdAt.toDate().toLocaleString() : ""
-    })
-  })
-  rankings.value = data
-}
-
-// Carico i dati all'avvio
-onMounted(() => {
-  loadRankings()
+// Form
+const form = ref({
+  user_1: '',
+  score_user_1: '',
+  user_2: '',
+  score_user_2: '',
+  user_3: '',
+  score_user_3: '',
+  user_4: '',
+  score_user_4: ''
 })
+
+// Errori
+const error = ref('')
+
+// Controllo duplicati solo tra utenti selezionati
+const hasDuplicates = computed(() => {
+  const users = [form.value.user_1, form.value.user_2, form.value.user_3, form.value.user_4].filter(u => u)
+  return new Set(users).size !== users.length
+})
+
+// Controllo punteggi solo per utenti selezionati
+const hasEmptyScores = computed(() => {
+  return [1,2,3,4].some(i => {
+    const user = form.value[`user_${i}`];
+    const score = form.value[`score_user_${i}`];
+    return user && score === '';
+  });
+});
+
+// Controllo minimo 3 giocatori
+const hasMinPlayers = computed(() => {
+  const selectedUsers = [form.value.user_1, form.value.user_2, form.value.user_3, form.value.user_4].filter(u => u);
+  return selectedUsers.length >= 3;
+});
+
+// Salvataggio su Firestore
+const saveResult = async () => {
+  error.value = ''
+
+  if (!hasMinPlayers.value) {
+    error.value = 'Devi selezionare almeno 3 giocatori!'
+    return
+  }
+
+  if (hasDuplicates.value) {
+    error.value = 'Ci sono nomi duplicati!'
+    return
+  }
+
+  if (hasEmptyScores.value) {
+    error.value = 'Tutti i punteggi dei giocatori selezionati devono essere inseriti!'
+    return
+  }
+
+  try {
+    await addDoc(collection(db, "results"), {
+      user_1: form.value.user_1 || null,
+      score_user_1: form.value.user_1 ? Number(form.value.score_user_1) : null,
+      user_2: form.value.user_2 || null,
+      score_user_2: form.value.user_2 ? Number(form.value.score_user_2) : null,
+      user_3: form.value.user_3 || null,
+      score_user_3: form.value.user_3 ? Number(form.value.score_user_3) : null,
+      user_4: form.value.user_4 || null,
+      score_user_4: form.value.user_4 ? Number(form.value.score_user_4) : null,
+      created_at: serverTimestamp()
+    });
+
+    alert('Risultato salvato con successo!');
+    form.value = { user_1:'', score_user_1:'', user_2:'', score_user_2:'', user_3:'', score_user_3:'', user_4:'', score_user_4:'' };
+
+  } catch (e) {
+    console.error(e);
+    error.value = 'Errore durante il salvataggio!';
+  }
+}
 </script>
-
 <template>
-  <div class="container vh-100">
-    <div class="row d-flex justify-content-center align-items-center h-100">
+  <div class="container min-vh-100">
+    <div class="row h-100 mb-4">
       <div class="col-12 text-center">
-        <h1>Classifica Everdell</h1>
+        <h2 class="mt-4">Inserisci risultato</h2>
 
-        <!-- Tabella classifica -->
-        <table class="table table-bordered mt-4" v-if="rankings.length">
-          <thead>
-            <tr>
-              <th>Round</th>
-              <th>Giocatore</th>
-              <th>Punteggio</th>
-              <th>Creato il</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="ranking in rankings" :key="ranking.id">
-              <td :rowspan="Object.keys(ranking.scores).length">{{ ranking.round }}</td>
-              <template v-for="(score, player) in ranking.scores" :key="player">
-                <tr>
-                  <td>{{ player }}</td>
-                  <td>{{ score }}</td>
-                  <td>{{ ranking.createdAt }}</td>
-                </tr>
-              </template>
-            </tr>
-          </tbody>
-        </table>
+        <div v-if="error" class="alert alert-danger">{{ error }}</div>
 
-        <p v-else>Nessun ranking trovato.</p>
+        <form @submit.prevent="saveResult">
+          <div class="row mb-2" v-for="i in 4" :key="i">
+            <div class="col-6">
+              <select class="form-select" v-model="form[`user_${i}`]">
+                <option value="">Seleziona giocatore {{ i }}</option>
+                <option v-for="p in playersList" :key="p" :value="p">{{ p }}</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <input type="number" class="form-control" placeholder="Punteggio" v-model="form[`score_user_${i}`]">
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-2">Salva risultato</button>
+        </form>
       </div>
     </div>
   </div>
