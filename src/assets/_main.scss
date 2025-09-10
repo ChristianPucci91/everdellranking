@@ -1,0 +1,40 @@
+@use './styles/_base.scss' as base;
+@use './styles/_article.scss' as article;
+@use './styles/_variables.scss' as variables;
+
+#app {
+  max-width: 100%;
+  width: 100%;
+  font-weight: normal;
+}
+
+/* SearchableListWrapper */
+.searchable-list-wrapper ol li{
+    font-size: 1.5rem;
+    /* margin: 1rem; */
+}
+
+.content-wrapper {
+  width: 90%;
+  max-width: 100%;
+  margin: 2% auto;
+  padding: 0 1rem;
+}
+/* SearchableListWrapper */
+
+code{
+  color: variables.$green !important;
+  &.no-bg{
+    padding: 0 !important;
+  }
+}
+pre,.hljs{
+  background-color: variables.$black !important;
+  width: fit-content;
+    padding: 1rem;
+  border-radius: 8px;
+  &.no-bg{
+    padding: 0 !important;
+  }
+}
+
