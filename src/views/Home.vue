@@ -83,10 +83,18 @@ const generateRankings = (resultsData) => {
     })
   })
 
-  rankings.value = Object.values(rankingsMap).map(player => ({
-    ...player,
-    winPercentage: player.played > 0 ? ((player.wins / player.played) * 100).toFixed(1) : "0.0"
-  }))
+  rankings.value = Object.values(rankingsMap).map(player => {
+    const winPercentage = player.played > 0 ? ((player.wins / player.played) * 100) : 0
+    const avgPoints = player.played > 0 ? (player.points / player.played) : 0
+    const indice = (winPercentage * 0.4) + (avgPoints * 0.6)
+    return {
+      ...player,
+      winPercentage: winPercentage.toFixed(1),
+      indice: indice.toFixed(2)
+    }
+  })
+  // Ordina la classifica per indice decrescente
+  rankings.value.sort((a, b) => b.indice - a.indice)
   console.log("Rankings:", rankings.value)
 }
 
@@ -103,7 +111,7 @@ onMounted(() => {
       <div class="col-12 text-center">
         <h1 class="my-4">Classifica All Time</h1>
 
-          <table class="table table-bordered table-dark">
+          <table class="table table-bordered table-dark" style="overflow-y: scroll;">
             <thead>
               <tr>
                 <th>Giocatore</th>
@@ -111,6 +119,7 @@ onMounted(() => {
                 <th>Vittorie</th>
                 <th>% Vittorie</th>
                 <th>Punti totali</th>
+                <th>Indice</th>
               </tr>
             </thead>
             <tbody>
@@ -120,10 +129,16 @@ onMounted(() => {
                 <td>{{ player.wins }}</td>
                 <td>{{ player.winPercentage }}%</td>
                 <td>{{ player.points }}</td>
+                <td>{{ player.indice }}</td>
               </tr>
             </tbody>
           </table>
 
+          <p class="formula"><strong>Indice classifica:</strong></p>
+          <p class="formula">
+            (Percentuale vittorie x 0,4) + 
+          </p>
+          <p class="formula">( <span class="formula"><sup class="formula"> Punti totali </sup> / <sub class="formula">Partite giocate</sub> )</span> x 0,6</p>
       </div>
     </div>
   </div>
