@@ -14,6 +14,15 @@ const db = getFirestore(app);
 const results = ref([])
 const rankings = ref([])
 
+const images = [
+  "src/assets/images/fynn.jpg",     // index 0
+  "src/assets/images/ever_tree.jpg",     // index 1
+  "src/assets/images/ranger.png",     // index 2
+  "src/assets/images/asso.jpg",     // index 2
+  "src/assets/images/innkeeper.jpg",     // index 2
+  "src/assets/images/fool.jpg",     // index 2
+]
+
 // Funzione per leggere i results
 const loadResults = async () => {
   const querySnapshot = await getDocs(collection(db, "results"));
@@ -86,11 +95,12 @@ const generateRankings = (resultsData) => {
   rankings.value = Object.values(rankingsMap).map(player => {
     const winPercentage = player.played > 0 ? ((player.wins / player.played) * 100) : 0
     const avgPoints = player.played > 0 ? (player.points / player.played) : 0
-    const indice = (winPercentage * 0.4) + (avgPoints * 0.6)
+    const indice = (winPercentage * 0.5) + (avgPoints * 0.5)
     return {
       ...player,
       winPercentage: winPercentage.toFixed(1),
-      indice: indice.toFixed(2)
+      indice: indice.toFixed(1),
+      avgPoints: avgPoints.toFixed(1)
     }
   })
   // Ordina la classifica per indice decrescente
@@ -106,40 +116,272 @@ onMounted(() => {
 
 <template>
 
-  <div class="container min-vh-100">
-    <div class="row h-100 mb-4">
-      <div class="col-12 text-center">
-        <h1 class="my-4">Classifica All Time</h1>
+<div class="container min-vh-100">
+  <div class="row h-100 mb-4">
+    <div class="col-12 text-center">
 
-          <table class="table table-bordered table-dark" style="overflow-y: scroll;">
-            <thead>
-              <tr>
-                <th>Giocatore</th>
-                <th>Partite giocate</th>
-                <th>Vittorie</th>
-                <th>% Vittorie</th>
-                <th>Punti totali</th>
-                <th>Indice</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="player in rankings" :key="player.user">
-                <td>{{ player.user }}</td>
-                <td>{{ player.played }}</td>
-                <td>{{ player.wins }}</td>
-                <td>{{ player.winPercentage }}%</td>
-                <td>{{ player.points }}</td>
-                <td>{{ player.indice }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <h1 class="my-4">Classifica All Time</h1>
 
-          <p class="formula"><strong>Indice classifica:</strong></p>
-          <p class="formula">
-            (Percentuale vittorie x 0,4) + 
-          </p>
-          <p class="formula">( <span class="formula"><sup class="formula"> Punti totali </sup> / <sub class="formula">Partite giocate</sub> )</span> x 0,6</p>
+      <!-- Formula sopra -->
+      <p ><strong >Indice classifica:</strong></p>
+      <p class="formula">
+        ( Percentuale vittorie x 0,5 ) + 
+      </p>
+      <p class="formula">
+        ( Media punti a partita x 0,5)
+      </p>
+
+      <!-- Cards -->
+      <!-- <v-card
+        class="d-flex flex-column mx-auto py-8 mb-6 bg-grey-darken-4"
+        border="double lg"
+        elevation="10"
+        height="500"
+        width="360"
+        v-for="(player, index) in rankings"
+        :key="player.user"
+      >
+        <div class="d-flex justify-center mt-auto text-h5 ">
+
+          <p>{{ player.user }}</p>
+
+          <v-icon
+            v-if="index === 0"
+            class="ml-2"
+            color="amber"
+            icon="mdi-medal"
+          />
+          <v-icon
+            v-else-if="index === 1"
+            class="ml-2"
+            color="blue-grey-lighten-1"
+            icon="mdi-medal"
+          />
+          <v-icon
+            v-else-if="index === 2"
+            class="ml-2"
+            color="deep-orange"
+            icon="mdi-medal"
+          />
+        </div>
+
+        <div class="d-flex align-center flex-column my-auto">
+          <div class="text-h3 mt-2">
+            <p>{{player.indice}}</p>
+          </div>
+
+          <v-rating
+            :model-value="(player.indice / 100) * 5"
+            color="yellow-darken-3"
+            half-increments
+            size="small"
+          />
+        </div>
+
+        <v-list
+          bg-color="transparent"
+          class="d-flex flex-column"
+          density="compact"
+        >
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Partite giocate:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.played }} </span>
+              </div>
+            </template>
+          </v-list-item>
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Partite vinte:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.wins }} </span>
+              </div>
+            </template>
+          </v-list-item>
+
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>% Vittorie:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.winPercentage }}% </span>
+              </div>
+            </template>
+          </v-list-item>
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Punti totali:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.points }}</span>
+              </div>
+            </template>
+          </v-list-item>
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Media punti a partita:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.avgPoints }}</span>
+              </div>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-card> -->
+
+
+    <v-card
+      class="mx-auto mb-6"
+      max-width="375"
+      style="border-color:#908435 !important"
+      border="double lg"
+      v-for="(player, index) in rankings"
+    >
+      <v-img
+        class="text-white"
+        height="300px"
+        gradient="rgba(0,0,0,0.5), rgba(0,0,0,0.5)"
+        :src="images[index] || 'images/default.jpg'"
+        style="object-position: top;"
+        cover
+      >
+        <div class="d-flex flex-column h-100 py-8">
+
+          <v-card-title class="pb-1 text-center">
+            <div class="text-h4">
+              {{player.user}}
+              
+            </div>
+            <v-icon
+              v-if="index === 0"
+              class="ml-2"
+              color="amber"
+              icon="mdi-medal"
+            />
+            <v-icon
+              v-else-if="index === 1"
+              class="ml-2"
+              color="blue-grey-lighten-1"
+              icon="mdi-medal"
+            />
+            <v-icon
+              v-else-if="index === 2"
+              class="ml-2"
+              color="deep-orange"
+              icon="mdi-medal"
+            />
+          </v-card-title>
+          <div class="d-flex align-center flex-column my-2">
+
+              <div class="text-h3 mt-2">
+                <p>{{player.indice}}</p>
+              </div>
+
+              <v-rating
+                :model-value="(player.indice / 100) * 5"
+                color="#ffff66 "
+                half-increments
+                size="small"
+              />
+          </div>
+        </div>
+      </v-img>
+
+        <v-list
+          bg-color="transparent"
+          class="d-flex flex-column"
+          density="compact"
+        >
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Partite giocate:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.played }} </span>
+              </div>
+            </template>
+          </v-list-item>
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Partite vinte:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.wins }} </span>
+              </div>
+            </template>
+          </v-list-item>
+
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>% Vittorie:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.winPercentage }}% </span>
+              </div>
+            </template>
+          </v-list-item>
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Punti totali:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.points }}</span>
+              </div>
+            </template>
+          </v-list-item>
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Media punti a partita:</span>
+            </template>
+
+            <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.avgPoints }}</span>
+              </div>
+            </template>
+          </v-list-item>
+        </v-list>
+    </v-card>
+
+
+    <!-- <div class="cards">
+      <div class="card" v-for="player in rankings" :key="player.user">
+        <div class="card-header">
+          {{ player.user }}
+        </div>
+        <div class="card-body">
+          <p><span>Indice:</span> {{ player.indice }}</p>
+          <p><span>Partite giocate:</span> {{ player.played }}</p>
+          <p><span>Vittorie:</span> {{ player.wins }}</p>
+          <p><span>% Vittorie:</span> {{ player.winPercentage }}%</p>
+          <p><span>Punti totali:</span> {{ player.points }}</p>
+        </div>
       </div>
+    </div> -->
+
     </div>
   </div>
+</div>
+
 </template>
