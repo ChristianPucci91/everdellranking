@@ -248,7 +248,6 @@ onMounted(() => {
         gradient="rgba(0,0,0,0.5), rgba(0,0,0,0.5)"
         :src="`images/${index+1}.jpg`" 
         cover        
-        style="object-position: top;"
       >
         <div class="d-flex flex-column h-100 py-8">
 
