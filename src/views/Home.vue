@@ -83,17 +83,29 @@ const generateRankings = (resultsData) => {
     })
   })
 
+  const K = 10; // parametro di esperienza, puoi modificarlo
+
   rankings.value = Object.values(rankingsMap).map(player => {
-    const winPercentage = player.played > 0 ? ((player.wins / player.played) * 100) : 0
-    const avgPoints = player.played > 0 ? (player.points / player.played) : 0
-    const indice = (winPercentage * 0.5) + (avgPoints * 0.5)
+    const winPercentage = player.played > 0 ? ((player.wins / player.played) * 100) : 0;
+    const avgPoints = player.played > 0 ? (player.points / player.played) : 0;
+
+    // Percentuale ponderata con fattore esperienza
+    const ponderata = player.played > 0 
+      ? winPercentage * (player.played / (player.played + K)) 
+      : 0;
+
+    // Indice finale con 50% ponderata e 50% media punti
+    const indice = (ponderata * 0.5) + (avgPoints * 0.5);
+
     return {
       ...player,
       winPercentage: winPercentage.toFixed(1),
-      indice: indice.toFixed(1),
-      avgPoints: avgPoints.toFixed(1)
-    }
-  })
+      ponderata: ponderata.toFixed(1), // opzionale, se vuoi vedere il valore ponderato
+      avgPoints: avgPoints.toFixed(1),
+      indice: indice.toFixed(1)
+    };
+  });
+
   // Ordina la classifica per indice decrescente
   rankings.value.sort((a, b) => b.indice - a.indice)
   console.log("Rankings:", rankings.value)
@@ -113,14 +125,62 @@ onMounted(() => {
 
       <h1 class="my-4">Classifica All Time</h1>
 
-      <!-- Formula sopra -->
-      <p ><strong >Indice classifica:</strong></p>
-      <p class="formula">
-        ( Percentuale vittorie x 0,5 ) + 
-      </p>
-      <p class="formula">
-        ( Media punti a partita x 0,5)
-      </p>
+      <v-dialog max-width="800">
+        <template v-slot:activator="{ props: activatorProps }">
+        <v-icon
+          v-bind="activatorProps"
+          color="white"
+          size="32"
+          class="cursor-pointer mb-2"
+        >
+          mdi-information-outline
+        </v-icon>
+        </template>
+
+        <template v-slot:default="{ isActive }">
+          <v-card title="Indice classifica">
+            <template v-slot:text>
+              <v-card-text>
+                <div class="ranking-explanation formula" style="font-family: Arial, sans-serif; max-width: 600px; line-height: 1.5;">
+                  <h3 style="color:#908435">Come viene calcolato l'indice dei giocatori</h3>
+                  <p>L'indice di ogni giocatore tiene conto sia delle vittorie che dell'esperienza e dei punti medi per partita.</p>
+
+                  <h4 style="color:#908435">Variabili:</h4>
+                  <ul>
+                    <li><strong style="color:#ffff66">W</strong> = Partite vinte</li>
+                    <li><strong style="color:#ffff66">T</strong> = Partite totali giocate</li>
+                    <li><strong style="color:#ffff66">P</strong> = Percentuale vittorie = W / T</li>
+                    <li><strong style="color:#ffff66">M</strong> = Media punti per partita</li>
+                    <li><strong style="color:#ffff66">K</strong> = Fattore esperienza (numero di partite necessarie per stabilizzare la percentuale) = 10</li>
+                  </ul>
+
+                  <h4 style="color:#908435">Formula:</h4>
+                  <p>Percentuale vittorie ponderata:</p>
+                  <p style="text-align: center;"><em><span style="color:#ffff66">P</span><sub>ponderata</sub> = <span style="color:#ffff66">P</span> × (<span style="color:#ffff66">T</span> / (<span style="color:#ffff66">T</span> + <span style="color:#ffff66">K</span>))</em></p>
+
+                  <p style="color:#908435">Indice finale:</p>
+                  <p style="text-align: center;"><em>Indice = 0.5 × <span style="color:#ffff66">P</span><sub>ponderata</sub> + 0.5 × <span style="color:#ffff66">M</span></em></p>
+
+                  <p><strong>0.5</strong> viene usato per dare lo stesso peso a <strong style="color:#ffff66">P</strong> e a <strong style="color:#ffff66">M</strong></p>
+
+                  <p>Il fattore esperienza serve a bilanciare il punteggio quando i giocatori hanno media punti e percentuale di vittorie simili, ma un numero molto diverso di partite giocate.</p>
+                </div>
+              </v-card-text>
+            </template>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+
+              <v-btn
+                color="surface-variant"
+                text="Chiudi"
+                variant="flat"
+                @click="isActive.value = false"
+              ></v-btn>
+            </v-card-actions>
+          </v-card>
+        </template>
+    </v-dialog>
 
       <!-- Cards -->
       <!-- <v-card
@@ -283,7 +343,7 @@ onMounted(() => {
 
               <v-rating
                 :model-value="(player.indice / 100) * 5"
-                color="#ffff66 "
+                color="#ffff66"
                 half-increments
                 size="small"
               />
