@@ -312,7 +312,7 @@ onMounted(() => {
         <div class="d-flex flex-column h-100 py-8">
 
           <v-card-title class="pb-1 text-center">
-            <div class="text-h4">
+            <div class="text-h4" style="font-family: 'Everdell', sans-serif;">
               {{player.user}}
               
             </div>
