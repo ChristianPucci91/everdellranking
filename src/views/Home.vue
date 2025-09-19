@@ -83,7 +83,7 @@ const generateRankings = (resultsData) => {
     })
   })
 
-  const K = 10; // parametro di esperienza, puoi modificarlo
+  const K = 1; // parametro di esperienza, puoi modificarlo
 
   rankings.value = Object.values(rankingsMap).map(player => {
     const winPercentage = player.played > 0 ? ((player.wins / player.played) * 100) : 0;
@@ -129,7 +129,7 @@ onMounted(() => {
         <template v-slot:activator="{ props: activatorProps }">
         <v-icon
           v-bind="activatorProps"
-          color="white"
+          color="#908435"
           size="32"
           class="cursor-pointer mb-2"
         >
@@ -151,7 +151,7 @@ onMounted(() => {
                     <li><strong style="color:#ffff66">T</strong> = Partite totali giocate</li>
                     <li><strong style="color:#ffff66">P</strong> = Percentuale vittorie = W / T</li>
                     <li><strong style="color:#ffff66">M</strong> = Media punti per partita</li>
-                    <li><strong style="color:#ffff66">K</strong> = Fattore esperienza (numero di partite necessarie per stabilizzare la percentuale) = 10</li>
+                    <li><strong style="color:#ffff66">K</strong> = Fattore esperienza (N° di partite necessarie per stabilizzare la percentuale) = 1</li>
                   </ul>
 
                   <h4 style="color:#908435">Formula:</h4>
@@ -161,7 +161,7 @@ onMounted(() => {
                   <p style="color:#908435">Indice finale:</p>
                   <p style="text-align: center;"><em>Indice = 0.5 × <span style="color:#ffff66">P</span><sub>ponderata</sub> + 0.5 × <span style="color:#ffff66">M</span></em></p>
 
-                  <p><strong>0.5</strong> viene usato per dare lo stesso peso a <strong style="color:#ffff66">P</strong> e a <strong style="color:#ffff66">M</strong></p>
+                  <p><strong>0.5</strong> viene usato per dare lo stesso peso a <strong style="color:#ffff66">P</strong> ed <strong style="color:#ffff66">M</strong></p>
 
                   <p>Il fattore esperienza serve a bilanciare il punteggio quando i giocatori hanno media punti e percentuale di vittorie simili, ma un numero molto diverso di partite giocate.</p>
                 </div>
@@ -378,18 +378,6 @@ onMounted(() => {
               </div>
             </template>
           </v-list-item>
-
-          <v-list-item >
-            <template v-slot:prepend>
-              <span>% Vittorie:</span>
-            </template>
-
-            <template v-slot:append>
-              <div class="rating-values">
-                <span class="d-flex justify-end"> {{ player.winPercentage }}% </span>
-              </div>
-            </template>
-          </v-list-item>
           <v-list-item >
             <template v-slot:prepend>
               <span>Punti totali:</span>
@@ -402,15 +390,45 @@ onMounted(() => {
             </template>
           </v-list-item>
           <v-list-item >
+            
             <template v-slot:prepend>
-              <span>Media punti a partita:</span>
+              <span> % Vittorie:</span>
             </template>
 
-            <template v-slot:append>
+            <!-- <template v-slot:append>
+              <div class="rating-values">
+                <span class="d-flex justify-end"> {{ player.winPercentage }}% </span>
+              </div>
+            </template> -->
+
+            <v-progress-linear
+              v-model="player.winPercentage"
+              height="20"       
+              color="#ffff66"
+              rounded="lg"
+            >
+              <strong>{{ player.winPercentage }}%</strong>
+            </v-progress-linear>
+          </v-list-item>
+
+          <v-list-item >
+            <template v-slot:prepend>
+              <span>Media pts:</span>
+            </template>
+
+            <!-- <template v-slot:append>
               <div class="rating-values">
                 <span class="d-flex justify-end"> {{ player.avgPoints }}</span>
               </div>
-            </template>
+            </template> -->
+            <v-progress-linear
+              v-model="player.avgPoints"
+              height="20"
+              color="#ffff66"
+              rounded="lg"
+            >
+              <strong>{{ player.avgPoints }}</strong>
+            </v-progress-linear>
           </v-list-item>
         </v-list>
     </v-card>

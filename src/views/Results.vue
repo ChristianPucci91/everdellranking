@@ -68,12 +68,12 @@ onMounted(() => {
 
         <div v-if="results.length">
           <div v-for="result in results" :key="result.id" class="mb-4">
-            <h3>Giocata il {{ result.createdAt }}</h3>
+            <h3 style="color:#908435">Giocata il {{ result.createdAt }}</h3>
             <table class="table table-bordered table-dark">
               <thead>
                 <tr>
-                  <th>Giocatore</th>
-                  <th>Punteggio</th>
+                  <th style="color:#908435">Giocatore</th>
+                  <th style="color:#908435">Punteggio</th>
                 </tr>
               </thead>
               <tbody>
