@@ -246,7 +246,7 @@ onMounted(() => {
         class="text-white"
         height="300px"
         gradient="rgba(0,0,0,0.5), rgba(0,0,0,0.5)"
-        :src="`src/assets/images/${index+1}.jpg`" 
+        :src="`images/${index+1}.jpg`" 
         cover        
         style="object-position: top;"
       >
