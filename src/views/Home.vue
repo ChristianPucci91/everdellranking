@@ -14,15 +14,6 @@ const db = getFirestore(app);
 const results = ref([])
 const rankings = ref([])
 
-const images = [
-  "src/assets/images/fynn.jpg",     // index 0
-  "src/assets/images/ever_tree.jpg",     // index 1
-  "src/assets/images/ranger.png",     // index 2
-  "src/assets/images/asso.jpg",     // index 2
-  "src/assets/images/innkeeper.jpg",     // index 2
-  "src/assets/images/fool.jpg",     // index 2
-]
-
 // Funzione per leggere i results
 const loadResults = async () => {
   const querySnapshot = await getDocs(collection(db, "results"));
@@ -250,13 +241,14 @@ onMounted(() => {
       border="double lg"
       v-for="(player, index) in rankings"
     >
+
       <v-img
         class="text-white"
         height="300px"
         gradient="rgba(0,0,0,0.5), rgba(0,0,0,0.5)"
-        :src="images[index] || 'images/default.jpg'"
+        :src="`src/assets/images/${index+1}.jpg`" 
+        cover        
         style="object-position: top;"
-        cover
       >
         <div class="d-flex flex-column h-100 py-8">
 
