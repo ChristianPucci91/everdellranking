@@ -83,7 +83,7 @@ const generateRankings = (resultsData) => {
     })
   })
 
-  const K = 1; // parametro di esperienza, puoi modificarlo
+  const K = 10; // parametro di esperienza, puoi modificarlo
 
   rankings.value = Object.values(rankingsMap).map(player => {
     const winPercentage = player.played > 0 ? ((player.wins / player.played) * 100) : 0;
