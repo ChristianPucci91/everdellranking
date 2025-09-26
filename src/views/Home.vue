@@ -151,7 +151,7 @@ onMounted(() => {
                     <li><strong style="color:#ffff66">T</strong> = Partite totali giocate</li>
                     <li><strong style="color:#ffff66">P</strong> = Percentuale vittorie = W / T</li>
                     <li><strong style="color:#ffff66">M</strong> = Media punti per partita</li>
-                    <li><strong style="color:#ffff66">K</strong> = Fattore esperienza (N° di partite necessarie per stabilizzare la percentuale) = 1</li>
+                    <li><strong style="color:#ffff66">K</strong> = Fattore esperienza (N° di partite necessarie per stabilizzare la percentuale) = 10</li>
                   </ul>
 
                   <h4 style="color:#908435">Formula:</h4>
